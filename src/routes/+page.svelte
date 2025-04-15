@@ -6,12 +6,17 @@
   let isLoading = $state(true);
 
   onMount(async () => {
+    if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready()
+        window.Telegram.WebApp.expand()
+    }
       const { data } = await supabase
         .from("Todos")
         .select("*")
         .limit(5)
 
       tasks = data || [];
+      isLoading = false
   });
 </script>
 
