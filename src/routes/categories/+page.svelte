@@ -1,35 +1,61 @@
 <script>
+  import { onMount } from "svelte";
+  import { supabase } from "$lib/supabaseClient";
   import { page } from "$app/stores";
 
-  let taskId = $state();
+  let categories = $state([]);
+  let isLoading = $state(true);
+  let taskId = $state(null);
 
-  taskId = $page.url.searchParams.get("taskId");
+  onMount(() => {
+    taskId = $page.url.searchParams.get("taskId");
+  });
 
-  const handleCategoryClick = (category) => {
+  const handleCategoryClick = async (item) => {
     const tg = window.Telegram?.WebApp;
 
-    if (tg && taskId) {
+    if (tg && taskId && item.id) {
       tg.sendData(
         JSON.stringify({
           task_id: taskId,
-          category_id: category.id,
+          category_id: item.id,
         })
       );
-      tg.close()
+
+      const { data, error } = await supabase
+        .from("Todos")
+        .update({ categories_id: item.id })
+        .eq("id", taskId);
+
+      if (error) {
+        console.log("Ошибка todos", +error.message);
+      } else {
+        console.log("Задача обновлена", data);
+      }
+
+      
+      tg.close();
     }
   };
-  let categories = $state([
-    { id: 1, name: "Дизайн" },
-    { id: 2, name: "Доработки" },
-    { id: 3, name: "Остальное" },
-  ]);
+
+  onMount(async () => {
+    const { data, error } = await supabase.from("Categories").select("*");
+
+    if (error) {
+      console.log("Ошибка" + error.message);
+    } else {
+      categories = data;
+    }
+
+    isLoading = false;
+  });
 </script>
 
 <h1>Выберите категорию</h1>
 
 <div class="list">
   {#each categories as item}
-    <div on:click={() => handleCategoryClick(item)} class="list-item">{item.name}</div>
+    <div class="item-list">{item.name}</div>
   {/each}
 </div>
 
@@ -40,7 +66,7 @@
     gap: 1rem;
   }
 
-  .list-item {
+  .item-list {
     cursor: pointer;
   }
 </style>
