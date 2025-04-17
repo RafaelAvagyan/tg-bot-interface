@@ -14,6 +14,8 @@
   const handleCategoryClick = async (item) => {
     const tg = window.Telegram?.WebApp;
 
+    console.log(item, 'item')
+
     if (tg && taskId && item.id) {
       tg.sendData(
         JSON.stringify({
@@ -33,7 +35,7 @@
         console.log("Задача обновлена", data);
       }
 
-      
+
       tg.close();
     }
   };
@@ -55,7 +57,7 @@
 
 <div class="list">
   {#each categories as item}
-    <div class="item-list">{item.name}</div>
+    <div on:click={() => handleCategoryClick(item)} class="item-list">{item.name}</div>
   {/each}
 </div>
 
