@@ -1,35 +1,49 @@
 <script>
   import { onMount } from "svelte";
   import { supabase } from "$lib/supabaseClient";
+  import { page } from "$app/stores";
+  import { get } from "svelte/store";
 
   let categories = $state([]);
   let isLoading = $state(true);
+  let taskId = $state(null);
 
   const handleCategoryClick = async (item) => {
-    const {data, error} = await supabase
-      .from('Todos')
-      .update({ categories_id: item.id })
-
-    if (error) {
-      console.log('Ошибка todos', + error.message)
-    } else {
-      console.log('Успешно', data)
+    const tg = window.Telegram?.WebApp;
+    if (!tg) {
+      console.error("Telegram WebApp не доступен");
+      return;
     }
 
-    window.Telegram.WebApp.close()
-  }
+    tg.sendData(
+      JSON.stringify({
+        action: "set_category",
+        task_id: taskId,
+        category_id: item.id,
+      })
+    );
 
+    tg.close();
+  };
 
   onMount(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    taskId = urlParams.get("task_id");
+
     const { data, error } = await supabase.from("Categories").select("*");
 
     if (error) {
-      console.log("Ошибка" + error.message);
+      console.error("Ошибка загрузки категорий:", error.message);
     } else {
       categories = data;
     }
 
     isLoading = false;
+
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
+      window.Telegram.WebApp.ready();
+    }
   });
 </script>
 
