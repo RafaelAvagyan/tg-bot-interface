@@ -17,6 +17,7 @@
     const tg = window.Telegram?.WebApp;
 
     if (tg) {
+      console.log("Telegram WebApp найден, отправка данных...");
       tg.sendData(
         JSON.stringify({
           task_id: taskId,
@@ -24,6 +25,8 @@
         })
       );
       tg.close();
+    } else {
+      console.log("Telegram WebApp НЕ найден");
     }
   };
 
