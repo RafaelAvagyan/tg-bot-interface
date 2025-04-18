@@ -1,38 +1,24 @@
 <script>
   import { onMount } from "svelte";
   import { supabase } from "$lib/supabaseClient";
-  import { page } from "$app/stores";
-  import { get } from "svelte/store";
 
   let categories = $state([]);
   let isLoading = $state(true);
-  let taskId = null;
 
   const handleCategoryClick = async (item) => {
-    if (!taskId) {
-      console.log("Нет taskId");
-      return;
-    }
+    const {data, error} = await supabase
+      .from('Todos')
+      .update({ categories_id: item.id })
 
-    const tg = window.Telegram?.WebApp;
-
-    if (tg) {
-      console.log("Telegram WebApp найден, отправка данных...");
-      tg.sendData(
-        JSON.stringify({
-          task_id: taskId,
-          category_id: item.id,
-        })
-      );
-      tg.close();
+    if (error) {
+      console.log('Ошибка todos', + error.message)
     } else {
-      console.log("Telegram WebApp НЕ найден");
+      console.log('Успешно', data)
     }
-  };
+  }
+
 
   onMount(async () => {
-    const url = get(page).url;
-    taskId = url.searchParams.get("taskId");
     const { data, error } = await supabase.from("Categories").select("*");
 
     if (error) {
