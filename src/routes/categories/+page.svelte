@@ -15,6 +15,8 @@
     } else {
       console.log('Успешно', data)
     }
+
+    window.Telegram.WebApp.close()
   }
 
 
