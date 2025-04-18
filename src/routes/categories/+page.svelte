@@ -14,18 +14,17 @@
       return;
     }
 
-    const { data, error } = await supabase
-      .from("Todos")
-      .update({ categories_id: item.id })
-      .eq("id", taskId);
+    const tg = window.Telegram?.WebApp;
 
-    if (error) {
-      console.log("Ошибка todos", +error.message);
-    } else {
-      console.log("Задача обновлена", data);
+    if (tg) {
+      tg.sendData(
+        JSON.stringify({
+          task_id: taskId,
+          category_id: item.id,
+        })
+      );
+      tg.close();
     }
-
-    window.Telegram.WebApp.close();
   };
 
   onMount(async () => {
