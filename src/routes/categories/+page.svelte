@@ -6,7 +6,18 @@
 
   let categories = $state([]);
   let isLoading = $state(true);
-  let selectedCategory = $state(null);
+
+  const handleCategoryClick = async (item) => {
+    const { data, error } = await supabase
+      .from("Todos")
+      .update({ categories_id: item.id });
+
+    if (error) {
+      console.log("Ошибка", +error.message);
+    } else {
+      console.log("Успешно !");
+    }
+  };
 
   onMount(async () => {
     const { data, error } = await supabase.from("Categories").select("*");
@@ -19,29 +30,6 @@
 
     isLoading = false;
   });
-
-  const handleCategoryClick = async (category) => {
-    selectedCategory = category.id;
-    console.log("Выбрана категория ID:", category.id);
-
-    const testTaskId = 1;
-
-    const { data, error } = await supabase
-      .from("Todos")
-      .update({ categories_id: category.id })
-      .eq("id", testTaskId)
-      .select();
-
-    if (error) {
-      console.error("Ошибка обновления:", error);
-      alert("Ошибка при обновлении категории!");
-    } else {
-      console.log("Успешно обновлено:", data);
-      alert(`Категория "${category.name}" записана в задачу!`);
-    }
-
-    window.Telegram?.WebApp.close();
-  };
 </script>
 
 <h1>Выберите категорию</h1>
