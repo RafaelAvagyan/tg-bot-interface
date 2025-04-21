@@ -68,9 +68,9 @@
 {:else}
   <div class="list">
     {#each categories as item}
-      <div on:click={() => handleCategoryClick(item)} class="item-list">
+      <button on:click={() => handleCategoryClick(item)} class="item-list">
         {item.name}
-      </div>
+      </button>
     {/each}
   </div>
 {/if}
