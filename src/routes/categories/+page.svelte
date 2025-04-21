@@ -6,20 +6,34 @@
 
   let categories = $state([]);
   let isLoading = $state(true);
+  let taskId = $state(null);
 
   const handleCategoryClick = async (item) => {
+    if (!taskId) {
+      console.error("Не найден taskId");
+      return;
+    }
+
     const { data, error } = await supabase
       .from("Todos")
-      .update({ categories_id: item.id });
+      .update({ categories_id: item.id })
+      .eq("id", taskId);
 
     if (error) {
       console.log("Ошибка", +error.message);
+      alert("Ошибка при обновлений категорий");
     } else {
-      console.log("Успешно !");
+      if (window.Telegram?.WebApp) {
+        window.Telegram?.WebApp.close();
+      }
     }
   };
 
   onMount(async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    taskId = urlParams.get("task_id");
+    console.log("Task ID", taskId);
+
     const { data, error } = await supabase.from("Categories").select("*");
 
     if (error) {
@@ -29,6 +43,11 @@
     }
 
     isLoading = false;
+
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
+      window.Telegram.WebApp.ready();
+    }
   });
 </script>
 
