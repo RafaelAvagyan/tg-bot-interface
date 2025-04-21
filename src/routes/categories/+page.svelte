@@ -24,6 +24,13 @@
       alert("Ошибка при обновлений категорий");
     } else {
       if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.sendData(
+          JSON.stringify({
+            task_id: taskId,
+            category_id: item.id,
+            category_name: item.name,
+          })
+        );
         window.Telegram?.WebApp.close();
       }
     }
