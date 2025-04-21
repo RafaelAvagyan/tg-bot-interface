@@ -14,32 +14,35 @@
       return;
     }
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from("Todos")
       .update({ categories_id: item.id })
       .eq("id", taskId);
 
     if (error) {
-      console.log("Ошибка", +error.message);
-      alert("Ошибка при обновлений категорий");
-    } else {
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.sendData(
-          JSON.stringify({
-            task_id: taskId,
-            category_id: item.id,
-            category_name: item.name,
-          })
-        );
-        window.Telegram?.WebApp.close();
-      }
+      console.error("Ошибка обновления:", error);
+      alert("Ошибка при обновлении категории!");
+      return;
+    }
+
+    // Отправляем данные обратно в бота
+    if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.sendData(
+        JSON.stringify({
+          action: "category_selected",
+          category_id: item.id,
+          category_name: item.name,
+          task_id: taskId
+        })
+      );
+      window.Telegram.WebApp.close();
     }
   };
 
   onMount(async () => {
     const urlParams = new URLSearchParams(window.location.search);
     taskId = urlParams.get("task_id");
-    console.log("Task ID", taskId);
+    console.log("Task ID:", taskId);
 
     const { data, error } = await supabase.from("Categories").select("*");
 
@@ -60,13 +63,17 @@
 
 <h1>Выберите категорию</h1>
 
-<div class="list">
-  {#each categories as item}
-    <div on:click={() => handleCategoryClick(item)} class="item-list">
-      {item.name}
-    </div>
-  {/each}
-</div>
+{#if isLoading}
+  <p>Загрузка категорий...</p>
+{:else}
+  <div class="list">
+    {#each categories as item}
+      <div on:click={() => handleCategoryClick(item)} class="item-list">
+        {item.name}
+      </div>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .list {
@@ -76,6 +83,15 @@
   }
 
   .item-list {
+    padding: 12px;
+    background: var(--tg-theme-secondary-bg-color, #f3f3f3);
+    border-radius: 8px;
     cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .item-list:hover {
+    background: var(--tg-theme-button-color, #2481cc);
+    color: var(--tg-theme-button-text-color, #fff);
   }
 </style>
