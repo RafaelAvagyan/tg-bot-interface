@@ -23,3 +23,4 @@
 {#each tasks as task}
   <div>{task.text}</div>
 {/each}
+<a href="/test">Test</a>
