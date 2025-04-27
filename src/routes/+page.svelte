@@ -10,22 +10,23 @@
 
   let telegramUser = $state(null);
 
-  const handleTelegramAuth = (user) => {
-    telegramUser = user;
-    console.log("Пользователь авторизован через браузер:", telegramUser);
-  };
-
   onMount(() => {
     if (typeof window !== "undefined") {
+      // Проверяем, есть ли данные пользователя из мини-приложения
       if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
         telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
         console.log("Мини-приложение открыл пользователь:", telegramUser);
       } else {
         console.log("Пользовательские данные не найдены.");
       }
+
+      // Функция для обработки авторизации через Telegram
+      window.handleTelegramAuth = (user) => {
+        telegramUser = user;
+        console.log("Пользователь авторизован через браузер:", telegramUser);
+      };
     }
   });
-
   onMount(async () => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -63,19 +64,27 @@
   <h1>Добро пожаловать, {telegramUser.first_name}!</h1>
   <p>@{telegramUser.username}</p>
   <p>ID: {telegramUser.id}</p>
+  {#if telegramUser.photo_url}
+    <img
+      src={telegramUser.photo_url}
+      alt="Avatar"
+      width="100"
+      style="border-radius: 50%;"
+    />
+  {/if}
 {:else}
   <h1>Вы не авторизованы</h1>
   <div id="telegram-login-button"></div>
   <script
-  async
-  src="https://telegram.org/js/telegram-widget.js?22"
-  data-telegram-login="CreateTodoBot"
-  data-size="large"
-  data-userpic="true"
-  data-radius="12"
-  data-request-access="write"
-  data-on-auth="handleTelegramAuth"
-></script>
+    async
+    src="https://telegram.org/js/telegram-widget.js?22"
+    data-telegram-login="CraeteTodoBot"
+    data-size="large"
+    data-userpic="true"
+    data-radius="12"
+    data-request-access="write"
+    data-on-auth="handleTelegramAuth"
+  ></script>
 {/if}
 <h1>Главная</h1>
 {#if isLoading}
