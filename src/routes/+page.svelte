@@ -8,6 +8,17 @@
   let isLoading = $state(true);
   let selectedCategoryId = $state(null);
 
+  let telegramUser = $state(null);
+
+  onMount(() => {
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
+      console.log("Мини-приложение открыл пользователь:", telegramUser);
+    } else {
+      console.log("Пользовательские данные не найдены.");
+    }
+  });
+
   onMount(async () => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -41,6 +52,13 @@
   }
 </script>
 
+{#if telegramUser}
+  <p>ID: {telegramUser.id}</p>
+  <p>Имя: {telegramUser.first_name}</p>
+  <p>Username: @{telegramUser.username}</p>
+{:else}
+  <p>Нет данных о пользователе.</p>
+{/if}
 <h1>Главная</h1>
 {#if isLoading}
   <p>Загрузка...</p>
