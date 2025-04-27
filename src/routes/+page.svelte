@@ -19,6 +19,11 @@
     }
   });
 
+  window.handleTelegramAuth = (user) => {
+    telegramUser = user;
+    console.log("Пользователь авторизован через браузер: ", telegramUser);
+  };
+
   onMount(async () => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -52,12 +57,36 @@
   }
 </script>
 
-{#if telegramUser}
+{#if isLoading}
+  <p>Загрузка...</p>
+{:else if telegramUser}
+  <h1>Добро пожаловать, {telegramUser.first_name}!</h1>
+  <p>@{telegramUser.username}</p>
   <p>ID: {telegramUser.id}</p>
-  <p>Имя: {telegramUser.first_name}</p>
-  <p>Username: @{telegramUser.username}</p>
+  {#if telegramUser.photo_url}
+    <img
+      src={telegramUser.photo_url}
+      alt="Avatar"
+      width="100"
+      style="border-radius: 50%;"
+    />
+  {/if}
 {:else}
-  <p>Нет данных о пользователе.</p>
+  <h1>Вы не авторизованы</h1>
+  <div id="telegram-login-button"></div>
+{/if}
+
+{#if !telegramUser}
+  <script
+    async
+    src="https://telegram.org/js/telegram-widget.js?22"
+    data-telegram-login="CraeteTodoBot"
+    data-size="large"
+    data-userpic="true"
+    data-radius="12"
+    data-request-access="write"
+    data-on-auth="handleTelegramAuth">
+  </script>
 {/if}
 <h1>Главная</h1>
 {#if isLoading}
