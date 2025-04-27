@@ -9,16 +9,32 @@
   let selectedCategoryId = $state(null);
 
   let telegramUser = $state(null);
+  let showTelegramButton = $state(false);
 
   onMount(() => {
-    // Проверяем, есть ли данные пользователя из мини-приложения
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-      console.log("Мини-приложение открыл пользователь:", telegramUser);
+      console.log("Открыто в Telegram:", telegramUser);
     } else {
-      console.log("Пользовательские данные не найдены.");
+      showTelegramButton = true;
+      console.log("Режим браузера - показываем кнопку");
     }
   });
+
+  function loadTelegramAuth() {
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.async = true;
+    script.setAttribute("data-telegram-login", "CreateTodoBot");
+    script.setAttribute("data-auth-url", "https://tg-bot-interface.vercel.app/"); // Можно оставить заглушку
+    script.setAttribute("data-request-access", "write");
+
+    script.onload = () => {
+      console.log("Telegram Widget загружен");
+    };
+
+    document.body.appendChild(script);
+  }
 
   onMount(async () => {
     if (window.Telegram?.WebApp) {
@@ -54,9 +70,25 @@
 </script>
 
 {#if telegramUser}
-  <h1>Добро пожаловать, {telegramUser.first_name}!</h1>
-  <p>@{telegramUser.username}</p>
-  <p>ID: {telegramUser.id}</p>
+  <div class="user-panel">
+    <h2>Привет, {telegramUser.first_name}!</h2>
+    <p>ID: {telegramUser.id}</p>
+    {#if telegramUser.username}
+      <p>@{telegramUser.username}</p>
+    {/if}
+  </div>
+{:else if showTelegramButton}
+  <div class="auth-panel">
+    <button on:click={loadTelegramAuth} class="tg-button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#0088cc">
+        <path
+          d="M12 0C5.373 0 0 5.373 0 12C0 18.627 5.373 24 12 24C18.627 24 24 18.627 24 12C24 5.373 18.627 0 12 0ZM18.578 7.2L16.011 17.6C15.822 18.396 15.289 18.57 14.622 18.222L10.8 15.466L8.933 17.244C8.756 17.421 8.611 17.566 8.267 17.566L8.578 13.689L15.822 7.022C16.111 6.767 15.756 6.633 15.378 6.889L6.489 12.689L2.689 11.511C1.911 11.256 1.889 10.656 2.844 10.244L17.956 5.067C18.6 4.822 19.156 5.244 18.578 7.2Z"
+        />
+      </svg>
+      Войти через Telegram
+    </button>
+    <div id="telegram-login-container"></div>
+  </div>
 {/if}
 <h1>Главная</h1>
 {#if isLoading}
