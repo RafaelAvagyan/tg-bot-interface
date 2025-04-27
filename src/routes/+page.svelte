@@ -10,15 +10,21 @@
 
   let telegramUser = $state(null);
 
-  onMount(() => {
-    if (typeof window !== "undefined") {
-      // Проверяем, есть ли данные пользователя из мини-приложения
-      if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+  // Объединяем логику в одном onMount
+  onMount(async () => {
+    // Проверяем, что Telegram-объект доступен в глобальном контексте
+    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
+      // Проверка данных из мини-приложения
+      if (window.Telegram.WebApp.initDataUnsafe?.user) {
         telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
         console.log("Мини-приложение открыл пользователь:", telegramUser);
       } else {
         console.log("Пользовательские данные не найдены.");
       }
+
+      // Инициализация Telegram WebApp
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
 
       // Функция для обработки авторизации через Telegram
       window.handleTelegramAuth = (user) => {
@@ -26,13 +32,8 @@
         console.log("Пользователь авторизован через браузер:", telegramUser);
       };
     }
-  });
-  onMount(async () => {
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
 
+    // Загружаем данные из Supabase
     const [categoriesRes, tasksRes] = await Promise.all([
       supabase.from("Categories").select("*"),
       supabase.from("Todos").select("*"),
@@ -41,8 +42,8 @@
     categories = categoriesRes.data || [];
     tasks = tasksRes.data || [];
     filteredTasks = tasks;
-    console.log(filteredTasks, "tasks");
 
+    console.log(filteredTasks, "tasks");
     isLoading = false;
   });
 
@@ -52,11 +53,7 @@
   };
 
   function showStatus(status) {
-    if (status === 1) {
-      return "В ожидании";
-    } else {
-      return "В работе";
-    }
+    return status === 1 ? "В ожидании" : "В работе";
   }
 </script>
 
@@ -86,6 +83,7 @@
     data-on-auth="handleTelegramAuth"
   ></script>
 {/if}
+
 <h1>Главная</h1>
 {#if isLoading}
   <p>Загрузка...</p>
@@ -114,7 +112,6 @@
 
   <h2>📋 Задачи</h2>
   {#if filteredTasks.length > 0}
-    <table></table>
     <ul>
       {#each filteredTasks as task}
         <li>
