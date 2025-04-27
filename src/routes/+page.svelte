@@ -78,7 +78,7 @@
   <script
     async
     src="https://telegram.org/js/telegram-widget.js?22"
-    data-telegram-login="CraeteTodoBot"
+    data-telegram-login="CreateTodoBot"
     data-size="large"
     data-userpic="true"
     data-radius="12"
