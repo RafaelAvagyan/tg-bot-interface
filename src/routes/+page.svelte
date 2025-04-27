@@ -10,30 +10,22 @@
 
   let telegramUser = $state(null);
 
-  // Объединяем логику в одном onMount
-  onMount(async () => {
-    // Проверяем, что Telegram-объект доступен в глобальном контексте
-    if (typeof window !== "undefined" && window.Telegram?.WebApp) {
-      // Проверка данных из мини-приложения
-      if (window.Telegram.WebApp.initDataUnsafe?.user) {
-        telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-        console.log("Мини-приложение открыл пользователь:", telegramUser);
-      } else {
-        console.log("Пользовательские данные не найдены.");
-      }
+  onMount(() => {
+    // Проверяем, есть ли данные пользователя из мини-приложения
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
+      console.log("Мини-приложение открыл пользователь:", telegramUser);
+    } else {
+      console.log("Пользовательские данные не найдены.");
+    }
+  });
 
-      // Инициализация Telegram WebApp
+  onMount(async () => {
+    if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
-
-      // Функция для обработки авторизации через Telegram
-      window.handleTelegramAuth = (user) => {
-        telegramUser = user;
-        console.log("Пользователь авторизован через браузер:", telegramUser);
-      };
     }
 
-    // Загружаем данные из Supabase
     const [categoriesRes, tasksRes] = await Promise.all([
       supabase.from("Categories").select("*"),
       supabase.from("Todos").select("*"),
@@ -42,8 +34,8 @@
     categories = categoriesRes.data || [];
     tasks = tasksRes.data || [];
     filteredTasks = tasks;
-
     console.log(filteredTasks, "tasks");
+
     isLoading = false;
   });
 
@@ -53,7 +45,11 @@
   };
 
   function showStatus(status) {
-    return status === 1 ? "В ожидании" : "В работе";
+    if (status === 1) {
+      return "В ожидании";
+    } else {
+      return "В работе";
+    }
   }
 </script>
 
@@ -61,29 +57,7 @@
   <h1>Добро пожаловать, {telegramUser.first_name}!</h1>
   <p>@{telegramUser.username}</p>
   <p>ID: {telegramUser.id}</p>
-  {#if telegramUser.photo_url}
-    <img
-      src={telegramUser.photo_url}
-      alt="Avatar"
-      width="100"
-      style="border-radius: 50%;"
-    />
-  {/if}
-{:else}
-  <h1>Вы не авторизованы</h1>
-  <div id="telegram-login-button"></div>
-  <script
-    async
-    src="https://telegram.org/js/telegram-widget.js?22"
-    data-telegram-login="CreateTodoBot"
-    data-size="large"
-    data-userpic="true"
-    data-radius="12"
-    data-request-access="write"
-    data-on-auth="handleTelegramAuth"
-  ></script>
 {/if}
-
 <h1>Главная</h1>
 {#if isLoading}
   <p>Загрузка...</p>
@@ -112,6 +86,7 @@
 
   <h2>📋 Задачи</h2>
   {#if filteredTasks.length > 0}
+    <table></table>
     <ul>
       {#each filteredTasks as task}
         <li>
