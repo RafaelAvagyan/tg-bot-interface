@@ -12,34 +12,16 @@
   let showTelegramButton = $state(false);
 
   onMount(async () => {
-    const urlParams = new URLSearchParams(window.location.search);
-
-    // Если в URL есть параметр id — значит человек только что авторизовался через Telegram
-    if (urlParams.get("id")) {
-      const user = {
-        id: urlParams.get("id"),
-        first_name: urlParams.get("first_name"),
-        last_name: urlParams.get("last_name"),
-        username: urlParams.get("username"),
-      };
-
-      telegramUser = user;
-      console.log("Авторизован через Telegram виджет:", telegramUser);
-
-      await addUser(telegramUser);
-
-      // Очищаем URL (чтобы убрать query-параметры)
-      window.history.replaceState({}, document.title, "/");
-    } else if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-      console.log("Открыто в Telegram-приложении:", telegramUser);
-
+      console.log("Открыто в Telegram:", telegramUser);
       await addUser(telegramUser);
     } else {
       showTelegramButton = true;
       console.log("Режим браузера - показываем кнопку");
     }
   });
+
   async function addUser(user) {
     const userData = {
       telegramId: user.id,
@@ -57,23 +39,23 @@
     }
   }
 
-  function loadTelegramAuth() {
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", "CreateTodoBot");
-    script.setAttribute(
-      "data-auth-url",
-      "https://tg-bot-interface.vercel.app/"
-    );
-    script.setAttribute("data-request-access", "write");
+  // function loadTelegramAuth() {
+  //   const script = document.createElement("script");
+  //   script.src = "https://telegram.org/js/telegram-widget.js?22";
+  //   script.async = true;
+  //   script.setAttribute("data-telegram-login", "CreateTodoBot");
+  //   script.setAttribute(
+  //     "data-auth-url",
+  //     "https://tg-bot-interface.vercel.app/"
+  //   );
+  //   script.setAttribute("data-request-access", "write");
 
-    script.onload = () => {
-      console.log("Telegram Widget загружен");
-    };
+  //   script.onload = () => {
+  //     console.log("Telegram Widget загружен");
+  //   };
 
-    document.body.appendChild(script);
-  }
+  //   document.body.appendChild(script);
+  // }
 
   onMount(async () => {
     if (window.Telegram?.WebApp) {
@@ -116,7 +98,8 @@
       <p>@{telegramUser.username}</p>
     {/if}
   </div>
-{:else if showTelegramButton}
+{/if}
+<!-- {:else if showTelegramButton}
   <div class="auth-panel">
     <button on:click={loadTelegramAuth} class="tg-button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="#0088cc">
@@ -128,7 +111,7 @@
     </button>
     <div id="telegram-login-container"></div>
   </div>
-{/if}
+{/if} -->
 <h1>Главная</h1>
 {#if isLoading}
   <p>Загрузка...</p>
