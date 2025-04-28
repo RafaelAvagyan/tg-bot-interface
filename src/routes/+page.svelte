@@ -11,15 +11,33 @@
   let telegramUser = $state(null);
   let showTelegramButton = $state(false);
 
-  onMount(() => {
+  onMount(async () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
       console.log("Открыто в Telegram:", telegramUser);
+      await addUser(telegramUser);
     } else {
       showTelegramButton = true;
       console.log("Режим браузера - показываем кнопку");
     }
   });
+
+  async function addUser(user) {
+    const userData = {
+      telegramId: user.id,
+      name: `${user.first_name} ${user.last_name || ""}`.trim(),
+      isAdmin: false,
+    };
+
+    const { data, error } = await supabase
+      .from("Users")
+      .upsert(userData, { onConflict: "telegramId" })
+      .select();
+
+    if (error) {
+      console.log("Ошибка добавление пользователя", +error.message);
+    }
+  }
 
   // function loadTelegramAuth() {
   //   const script = document.createElement("script");
