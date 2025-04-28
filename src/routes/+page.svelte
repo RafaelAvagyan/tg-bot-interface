@@ -30,12 +30,12 @@
     };
 
     const { data, error } = await supabase
-      .from('Users')
-      .upsert(userData, { onConflict: "telegramId" })
+      .from("Users")
+      .insert(userData)
       .select();
 
     if (error) {
-      console.log("Ошибка добавление пользователя", +error.message);
+      console.log("Ошибка добавление пользователя", error.message);
     }
   }
 
