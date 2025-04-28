@@ -1,42 +1,43 @@
-import crypto from 'crypto'
-import { json } from "@sveltejs/kit";
+// import crypto from 'crypto'
+// import { json } from "@sveltejs/kit";
+// import { env } from '$env/dynamic/private';
 
 
-const BOT_TOKEN = '7696156558:AAG8AQxstBeI2Ff1hEQqFtdE9X-n1Dm2kQI'
+// const BOT_TOKEN = env.BOT_TOKEN
 
-export async function POST({ request  }) {
-    const body = await request.formData();
-    const data = {};
-
-
-    for (const [key, value] of body.entries()) {
-        data[key] = value
-    }
-
-    const checkString = Object.keys(data)
-    .filter((key) => key !== 'hash')
-    .sort()
-    .map((key) => `${key}=${data[key]}`)
-    .join('\n');
+// export async function POST({ request  }) {
+//     const body = await request.formData();
+//     const data = {};
 
 
-    const secretKey = crypto
-    .createHash('sha256')
-    .update(BOT_TOKEN)
-    .digest();
+//     for (const [key, value] of body.entries()) {
+//         data[key] = value
+//     }
+
+//     const checkString = Object.keys(data)
+//     .filter((key) => key !== 'hash')
+//     .sort()
+//     .map((key) => `${key}=${data[key]}`)
+//     .join('\n');
 
 
-    const hmac = crypto
-    .createHmac('sha256', secretKey)
-    .update(checkString)
-    .digest('hex');
+//     const secretKey = crypto
+//     .createHash('sha256')
+//     .update(BOT_TOKEN)
+//     .digest();
 
-    if (hmac !== data.hash) {
-        console.error('Ошибка авторизации: Неверная подпись');
-        return json({ success: false, message: 'Unauthorized' }, { status: 403 });
-    }
 
-    console.log('Пользователь успешно авторизован через Telegram:', data);
+//     const hmac = crypto
+//     .createHmac('sha256', secretKey)
+//     .update(checkString)
+//     .digest('hex');
 
-    return json({ success: true, user: data });
-}
+//     if (hmac !== data.hash) {
+//         console.error('Ошибка авторизации: Неверная подпись');
+//         return json({ success: false, message: 'Unauthorized' }, { status: 403 });
+//     }
+
+//     console.log('Пользователь успешно авторизован через Telegram:', data);
+
+//     return json({ success: true, user: data });
+// }
