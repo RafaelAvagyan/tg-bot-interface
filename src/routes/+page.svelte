@@ -112,67 +112,71 @@
     <div id="telegram-login-container"></div>
   </div>
 {/if} -->
-<h1>Главная</h1>
-{#if isLoading}
-  <p>Загрузка...</p>
-{:else}
-  <div class="categories">
-    {#each categories as category}
-      <div
-        class="category {selectedCategoryId === category.id ? 'selected' : ''}"
-        on:click={() => filterTasksByCategory(category.id)}
-      >
-        {category.name}
-      </div>
-    {/each}
-    {#if selectedCategoryId}
-      <div
-        class="category {selectedCategoryId === null ? 'selected' : ''}"
-        on:click={() => {
-          selectedCategoryId = null;
-          filteredTasks = tasks;
-        }}
-      >
-        Показать все задачи
-      </div>
-    {/if}
-  </div>
-
-  <h2>📋 Задачи</h2>
-  {#if filteredTasks.length > 0}
-    <table></table>
-    <ul>
-      {#each filteredTasks as task}
-        <li>
-          <a href={`/task/${task.id}`}>
-            <div class="item">
-              <strong>Автор:</strong>
-              <div>{task.original_author}</div>
-            </div>
-            <div class="item">
-              <strong>Задача:</strong>
-              <div>{task.text}</div>
-            </div>
-            <div class="item">
-              <strong>Статус:</strong>
-              <div>{showStatus(task.status)}</div>
-            </div>
-            <div class="item">
-              <strong>Дата создания:</strong>
-              <div>{task.created_at}</div>
-            </div>
-          </a>
-        </li>
-      {/each}
-    </ul>
+<div class="main">
+  <h1>Главная</h1>
+  {#if isLoading}
+    <p>Загрузка...</p>
   {:else}
-    <p>Нет задач в этой категории.</p>
+    <div class="categories">
+      {#each categories as category}
+        <div
+          class="category {selectedCategoryId === category.id
+            ? 'selected'
+            : ''}"
+          on:click={() => filterTasksByCategory(category.id)}
+        >
+          {category.name}
+        </div>
+      {/each}
+      {#if selectedCategoryId}
+        <div
+          class="category {selectedCategoryId === null ? 'selected' : ''}"
+          on:click={() => {
+            selectedCategoryId = null;
+            filteredTasks = tasks;
+          }}
+        >
+          Показать все задачи
+        </div>
+      {/if}
+    </div>
+
+    <h2>📋 Задачи</h2>
+    {#if filteredTasks.length > 0}
+      <table></table>
+      <ul>
+        {#each filteredTasks as task}
+          <li>
+            <a href={`/task/${task.id}`}>
+              <div class="item">
+                <strong>Автор:</strong>
+                <div>{task.original_author}</div>
+              </div>
+              <div class="item">
+                <strong>Задача:</strong>
+                <div>{task.text}</div>
+              </div>
+              <div class="item">
+                <strong>Статус:</strong>
+                <div>{showStatus(task.status)}</div>
+              </div>
+              <div class="item">
+                <strong>Дата создания:</strong>
+                <div>{task.created_at}</div>
+              </div>
+            </a>
+          </li>
+        {/each}
+      </ul>
+    {:else}
+      <p>Нет задач в этой категории.</p>
+    {/if}
   {/if}
-{/if}
+</div>
 
 <style>
-  body {
-    background-color: white;
+  .main {
+    background: white;
   }
 
   .categories {
