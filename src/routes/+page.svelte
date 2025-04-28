@@ -21,20 +21,23 @@
     }
   });
 
-  function loadTelegramAuth() {
-    const script = document.createElement("script");
-    script.src = "https://telegram.org/js/telegram-widget.js?22";
-    script.async = true;
-    script.setAttribute("data-telegram-login", "CreateTodoBot");
-    script.setAttribute("data-auth-url", "https://tg-bot-interface.vercel.app/"); // Можно оставить заглушку
-    script.setAttribute("data-request-access", "write");
+  // function loadTelegramAuth() {
+  //   const script = document.createElement("script");
+  //   script.src = "https://telegram.org/js/telegram-widget.js?22";
+  //   script.async = true;
+  //   script.setAttribute("data-telegram-login", "CreateTodoBot");
+  //   script.setAttribute(
+  //     "data-auth-url",
+  //     "https://tg-bot-interface.vercel.app/"
+  //   );
+  //   script.setAttribute("data-request-access", "write");
 
-    script.onload = () => {
-      console.log("Telegram Widget загружен");
-    };
+  //   script.onload = () => {
+  //     console.log("Telegram Widget загружен");
+  //   };
 
-    document.body.appendChild(script);
-  }
+  //   document.body.appendChild(script);
+  // }
 
   onMount(async () => {
     if (window.Telegram?.WebApp) {
@@ -77,7 +80,8 @@
       <p>@{telegramUser.username}</p>
     {/if}
   </div>
-{:else if showTelegramButton}
+{/if}
+<!-- {:else if showTelegramButton}
   <div class="auth-panel">
     <button on:click={loadTelegramAuth} class="tg-button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="#0088cc">
@@ -89,7 +93,7 @@
     </button>
     <div id="telegram-login-container"></div>
   </div>
-{/if}
+{/if} -->
 <h1>Главная</h1>
 {#if isLoading}
   <p>Загрузка...</p>
