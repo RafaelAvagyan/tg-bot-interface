@@ -171,6 +171,10 @@
 {/if}
 
 <style>
+  body {
+    background-color: white;
+  }
+
   .categories {
     display: flex;
     flex-wrap: wrap;
