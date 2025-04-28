@@ -90,16 +90,17 @@
   }
 </script>
 
-{#if telegramUser}
-  <div class="user-panel">
-    <h2>Привет, {telegramUser.first_name}!</h2>
-    <p>ID: {telegramUser.id}</p>
-    {#if telegramUser.username}
-      <p>@{telegramUser.username}</p>
-    {/if}
-  </div>
-{/if}
-<!-- {:else if showTelegramButton}
+<div class="main">
+  {#if telegramUser}
+    <div class="user-panel">
+      <h2>Привет, {telegramUser.first_name}!</h2>
+      <p>ID: {telegramUser.id}</p>
+      {#if telegramUser.username}
+        <p>@{telegramUser.username}</p>
+      {/if}
+    </div>
+  {/if}
+  <!-- {:else if showTelegramButton}
   <div class="auth-panel">
     <button on:click={loadTelegramAuth} class="tg-button">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="#0088cc">
@@ -112,7 +113,6 @@
     <div id="telegram-login-container"></div>
   </div>
 {/if} -->
-<div class="main">
   <h1>Главная</h1>
   {#if isLoading}
     <p>Загрузка...</p>
