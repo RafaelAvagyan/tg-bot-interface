@@ -31,7 +31,7 @@
 
     const { data, error } = await supabase
       .from("Users")
-      .insert(userData)
+      .upsert(userData, { onConflict: "telegramId" })
       .select();
 
     if (error) {
