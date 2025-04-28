@@ -177,6 +177,7 @@
 <style>
   .main {
     background: white;
+    padding: 20px;
   }
 
   .categories {
