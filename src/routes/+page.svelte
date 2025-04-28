@@ -91,6 +91,7 @@
 </script>
 
 {#if telegramUser}
+  {console.log(telegramUser)}
   <div class="user-panel">
     <h2>Привет, {telegramUser.first_name}!</h2>
     <p>ID: {telegramUser.id}</p>
