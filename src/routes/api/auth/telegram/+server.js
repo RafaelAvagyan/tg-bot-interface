@@ -9,8 +9,11 @@ export async function GET({ url }) {
     username: url.searchParams.get('username'),
     photo_url: url.searchParams.get('photo_url'),
     auth_date: Number(url.searchParams.get('auth_date')),
-    hash: url.searchParams.get('hash')
+    hash: url.searchParams.get('hash'),
+    phone: url.searchParams.get('phone') 
   };
+
+  console.log('Received Telegram data:', tgData);
 
   // Здесь должна быть проверка хэша
 //   if (!verifyTelegramData(tgData)) return new Response('Invalid data', { status: 401 });
