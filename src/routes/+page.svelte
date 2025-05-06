@@ -15,12 +15,18 @@
   onMount(async () => {
     if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
       telegramUser = window.Telegram.WebApp.initDataUnsafe.user;
-      console.log("Открыто в Telegram:", telegramUser);
       await addUser(telegramUser);
     } else {
-      showTelegramButton = true;
-      console.log("Режим браузера - показываем кнопку");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        showTelegramButton = true;
+        loadTelegramWidget();
+      }
     }
+
+    await loadData();
   });
 
   async function addUser(user) {
@@ -40,12 +46,7 @@
     }
   }
 
-  onMount(async () => {
-    if (window.Telegram?.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-
+  async function loadData() {
     const [categoriesRes, tasksRes] = await Promise.all([
       supabase.from("Categories").select("*"),
       supabase.from("Todos").select("*"),
@@ -54,10 +55,34 @@
     categories = categoriesRes.data || [];
     tasks = tasksRes.data || [];
     filteredTasks = tasks;
-    console.log(filteredTasks, "tasks");
-
     isLoading = false;
-  });
+  }
+
+  function loadTelegramWidget() {
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.async = true;
+    script.dataset.telegramLogin = "CreateTodoBot";
+    script.dataset.size = "large";
+    script.dataset.onauth = "onTelegramAuth(user)";
+    script.dataset.requestAccess = "write";
+    document.body.appendChild(script);
+
+    window.onTelegramAuth = async (user) => {
+      const { error } = await supabase.from("Users").upsert(
+        {
+          telegramId: user.id,
+          name: `${user.first_name} ${user.last_name || ""}`.trim(),
+          isAdmin: false,
+        },
+        { onConflict: "telegramId" }
+      );
+
+      if (!error) {
+        window.location.reload();
+      }
+    };
+  }
 
   const filterTasksByCategory = (itemId) => {
     selectedCategoryId = itemId;
@@ -73,67 +98,74 @@
   }
 </script>
 
-<div class="main">
-  <h1>Главная</h1>
-  {#if isLoading}
-    <p>Загрузка...</p>
-  {:else}
-    <div class="categories">
-      {#each categories as category}
-        <div
-          class="category {selectedCategoryId === category.id
-            ? 'selected'
-            : ''}"
-          on:click={() => filterTasksByCategory(category.id)}
-        >
-          {category.name}
-        </div>
-      {/each}
-      {#if selectedCategoryId}
-        <div
-          class="category {selectedCategoryId === null ? 'selected' : ''}"
-          on:click={() => {
-            selectedCategoryId = null;
-            filteredTasks = tasks;
-          }}
-        >
-          Показать все задачи
-        </div>
-      {/if}
-    </div>
-
-    <h2>📋 Задачи</h2>
-    {#if filteredTasks.length > 0}
-      <table></table>
-      <ul>
-        {#each filteredTasks as task}
-          <li>
-            <a href={`/task/${task.id}`}>
-              <div class="item">
-                <strong>Автор:</strong>
-                <div>{task.original_author}</div>
-              </div>
-              <div class="item">
-                <strong>Задача:</strong>
-                <div>{task.text}</div>
-              </div>
-              <div class="item">
-                <strong>Статус:</strong>
-                <div>{showStatus(task.status)}</div>
-              </div>
-              <div class="item">
-                <strong>Дата создания:</strong>
-                <div>{task.created_at}</div>
-              </div>
-            </a>
-          </li>
-        {/each}
-      </ul>
+{#if showTelegramButton}
+  <div class="auth-container">
+    <h2>Войдите через Telegram</h2>
+    <div id="telegram-login-placeholder"></div>
+  </div>
+{:else}
+  <div class="main">
+    <h1>Главная</h1>
+    {#if isLoading}
+      <p>Загрузка...</p>
     {:else}
-      <p>Нет задач в этой категории.</p>
+      <div class="categories">
+        {#each categories as category}
+          <div
+            class="category {selectedCategoryId === category.id
+              ? 'selected'
+              : ''}"
+            on:click={() => filterTasksByCategory(category.id)}
+          >
+            {category.name}
+          </div>
+        {/each}
+        {#if selectedCategoryId}
+          <div
+            class="category {selectedCategoryId === null ? 'selected' : ''}"
+            on:click={() => {
+              selectedCategoryId = null;
+              filteredTasks = tasks;
+            }}
+          >
+            Показать все задачи
+          </div>
+        {/if}
+      </div>
+
+      <h2>📋 Задачи</h2>
+      {#if filteredTasks.length > 0}
+        <table></table>
+        <ul>
+          {#each filteredTasks as task}
+            <li>
+              <a href={`/task/${task.id}`}>
+                <div class="item">
+                  <strong>Автор:</strong>
+                  <div>{task.original_author}</div>
+                </div>
+                <div class="item">
+                  <strong>Задача:</strong>
+                  <div>{task.text}</div>
+                </div>
+                <div class="item">
+                  <strong>Статус:</strong>
+                  <div>{showStatus(task.status)}</div>
+                </div>
+                <div class="item">
+                  <strong>Дата создания:</strong>
+                  <div>{task.created_at}</div>
+                </div>
+              </a>
+            </li>
+          {/each}
+        </ul>
+      {:else}
+        <p>Нет задач в этой категории.</p>
+      {/if}
     {/if}
-  {/if}
-</div>
+  </div>
+{/if}
 
 <style>
   .main {
