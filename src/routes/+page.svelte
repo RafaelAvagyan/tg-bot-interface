@@ -80,8 +80,7 @@
     data-telegram-login="CreateTodoBot"
     data-size="large"
     data-auth-url="https://tg-bot-interface.vercel.app/"
-    data-request-access="write"
-   ✂prettier:content✂="">{}</script>`}
+   ></script>`}
   <h1>Главная</h1>
   {#if isLoading}
     <p>Загрузка...</p>
