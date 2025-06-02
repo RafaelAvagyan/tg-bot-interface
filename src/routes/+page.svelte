@@ -71,18 +71,26 @@
       return "В работе";
     }
   }
+
+  onMount(() => {
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.dataset.telegramLogin = "CreateTodoBot";
+    script.dataset.size = "large";
+    script.dataset.authUrl = "https://tg-bot-interface.vercel.app/";
+    script.dataset.requestAccess = "write";
+    document.body.appendChild(script);
+  });
 </script>
 
-
+<div id="telegram-login"></div>
 <div class="main">
-  {@html
-    `<script async src="https://telegram.org/js/telegram-widget.js?22"
+  <!-- {@html `<script async src="https://telegram.org/js/telegram-widget.js?22"
      data-telegram-login="CreateTodoBot" 
      data-size="large" 
      data-auth-url="https://tg-bot-interface.vercel.app/" 
-     data-request-access="write">
-     </script>`
-    }
+     data-request-access="write"></script>`} -->
   <h1>Главная</h1>
   {#if isLoading}
     <p>Загрузка...</p>
