@@ -78,7 +78,7 @@
     `<script async src="https://telegram.org/js/telegram-widget.js?22"
      data-telegram-login="CreateTodoBot" 
      data-size="large" 
-     data-auth-url="https://tg-bot-interface.vercel.app" 
+     data-auth-url="https://tg-bot-interface.vercel.app/" 
      data-request-access="write">
      </script>`
     }
